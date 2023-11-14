@@ -14,33 +14,31 @@ use crate::diff::unchanged;
 use crate::display::context::opposite_positions;
 use crate::display::hunks::{matched_pos_to_hunks, merge_adjacent};
 use crate::files::{guess_content, ProbableFileKind, read_files_or_die, relative_paths_in_either};
+use crate::lines::MaxLine;
 use crate::options::{DiffOptions, DisplayOptions, FileArgument};
 use crate::parse::{syntax, tree_sitter_parser as tsp};
 use crate::parse::guess_language::{guess, language_name, LanguageOverride};
 use crate::parse::syntax::init_next_prev;
 use crate::summary::{DiffResult, FileContent, FileFormat};
 
-mod conflicts;
-mod constants;
-mod diff;
-mod display;
-mod exit_codes;
-mod files;
-mod hash;
-mod line_parser;
-mod lines;
-mod options;
-mod parse;
-mod summary;
-mod version;
+pub mod conflicts;
+pub mod constants;
+pub mod diff;
+pub mod display;
+pub mod exit_codes;
+pub mod files;
+pub mod hash;
+pub mod line_parser;
+pub mod lines;
+pub mod options;
+pub mod parse;
+pub mod summary;
+pub mod version;
 
-pub fn diff<'a>(lhs_path: &PathBuf, rhs_path: &PathBuf, display_options: DisplayOptions,
+pub fn diff<'a>(lhs_path: &'a PathBuf, rhs_path: &'a PathBuf, display_options: DisplayOptions,
                 diff_options: DiffOptions, language_overrides: Vec<(LanguageOverride, Vec<Pattern>)>) -> impl ParallelIterator<Item=DiffResult> + 'a {
     if lhs_path == rhs_path {
-        let is_dir = match &lhs_path {
-            FileArgument::NamedPath(path) => path.is_dir(),
-            _ => false,
-        };
+        let is_dir = lhs_path.is_dir();
 
         eprintln!(
             "warning: You've specified the same {} twice.\n",

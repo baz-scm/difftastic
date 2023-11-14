@@ -22,7 +22,7 @@ impl TreeSitterParser {
         // In rustc 1.61+, we need to specify +whole-archive.
         // See https://github.com/rust-lang/rust/blob/1.61.0/RELEASES.md#compatibility-notes
         // and https://github.com/Wilfred/difftastic/issues/339.
-        let rustc_supports_whole_archive = !rustc::is_max_version("1.60.0").unwrap_or(false);
+        let _rustc_supports_whole_archive = !rustc::is_max_version("1.60.0").unwrap_or(false);
 
         let dir = PathBuf::from(&self.src_dir);
 
@@ -60,9 +60,9 @@ impl TreeSitterParser {
                 cpp_build.file(dir.join(file));
             }
 
-            if rustc_supports_whole_archive {
-                cpp_build.link_lib_modifier("+whole-archive");
-            }
+            // if rustc_supports_whole_archive {
+            //     cpp_build.link_lib_modifier("+whole-archive");
+            // }
 
             cpp_build.compile(&format!("{}-cpp", self.name));
         }
@@ -76,9 +76,9 @@ impl TreeSitterParser {
             build.file(dir.join(file));
         }
 
-        if rustc_supports_whole_archive {
-            build.link_lib_modifier("+whole-archive");
-        }
+        // if rustc_supports_whole_archive {
+        //     build.link_lib_modifier("+whole-archive");
+        // }
 
         build.compile(self.name);
     }

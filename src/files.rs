@@ -7,6 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use log::info;
 use rustc_hash::FxHashSet;
 use walkdir::WalkDir;
 
