@@ -1,11 +1,11 @@
 [package]
-name = "difftastic"
-description = "A structural diff that understands syntax."
-repository = "https://github.com/wilfred/difftastic"
-homepage = "http://difftastic.wilfred.me.uk/"
-license = "MIT"
+name = "baz-difftastic"
+description = "A structural diff that understands syntax. Based on difftastic, the OSS"
+repository = "https://github.com/baz-scm/difftastic"
+homepage = "https://baz.co/"
+license = "GPL-3"
 version = "0.53.0"
-authors = ["Wilfred Hughes <me@wilfred.me.uk>"]
+authors = ["Nimrod Kor <nimrod@baz.co>"]
 keywords = ["diff", "syntax"]
 categories = ["development-tools", "command-line-utilities", "parser-implementations"]
 edition = "2021"
