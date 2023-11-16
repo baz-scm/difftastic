@@ -201,7 +201,7 @@ fn unchanged_descendants<'a>(
 /// Nested sliders require a single unchanged descendant whose
 /// delimiters we can slide.
 ///
-/// ```
+/// ```emacslisp
 /// (old-1 (novel (old-2)))
 /// ```
 ///
@@ -677,7 +677,6 @@ mod tests {
     use super::*;
     use crate::{
         parse::guess_language,
-        parse::tree_sitter_parser::{from_language, parse},
         syntax::{init_all_info, AtomKind},
     };
 
