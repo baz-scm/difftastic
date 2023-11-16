@@ -726,7 +726,7 @@ mod tests {
             &DisplayOptions::default(),
             "foo-new.el",
             None,
-            &FileFormat::SupportedLanguage(Language::EmacsLisp),
+            &FileFormat::SupportedLanguage(Language::Java),
             "foo",
             "bar",
             &lhs_mps,

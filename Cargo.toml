@@ -33,7 +33,6 @@ pkg-fmt = "zip"
 [dependencies]
 # regex 1.8 requires rust 1.60.
 regex = "1.10.2"
-clap = { version = "4.4.8", features = ["cargo", "env", "wrap_help"] }
 itertools = "0.11.0"
 typed-arena = "2.0.2"
 rustc-hash = "1.1.0"
@@ -50,7 +49,6 @@ mimalloc = { version = "0.1.28", default-features = false }
 libmimalloc-sys = "=0.1.24"
 radix-heap = "0.4.2"
 walkdir = "2.3.3"
-const_format = "0.2.22"
 owo-colors = "3.5.0"
 wu-diff = "0.1.2"
 rayon = "1.7.0"

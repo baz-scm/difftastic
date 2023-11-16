@@ -56,7 +56,7 @@ fn prefer_outer_delimiter(language: guess_language::Language) -> bool {
     match language {
         // For Lisp family languages, we get the best result with the
         // outer delimiter.
-        EmacsLisp | Clojure | CommonLisp | Janet | Racket | Newick => true,
+        // EmacsLisp | Clojure | CommonLisp | Janet | Racket | Newick => true,
         // JSON and TOML are like Lisp: the outer delimiter in an array object
         // is the most relevant.
         Json | Toml | Hcl => true,
@@ -723,7 +723,7 @@ mod tests {
         change_map.insert(lhs[1], Novel);
         change_map.insert(lhs[2], Novel);
 
-        fix_all_sliders(guess_language::Language::EmacsLisp, &lhs, &mut change_map);
+        fix_all_sliders(guess_language::Language::Java, &lhs, &mut change_map);
         assert_eq!(change_map.get(lhs[0]), Some(Novel));
         assert_eq!(change_map.get(lhs[1]), Some(Novel));
         assert_eq!(change_map.get(lhs[2]), Some(Unchanged(rhs[0])));
@@ -772,7 +772,7 @@ mod tests {
         change_map.insert(lhs[1], Novel);
         change_map.insert(lhs[2], Unchanged(rhs[0]));
 
-        fix_all_sliders(guess_language::Language::EmacsLisp, &lhs, &mut change_map);
+        fix_all_sliders(guess_language::Language::Java, &lhs, &mut change_map);
 
         assert_eq!(change_map.get(rhs[0]), Some(Unchanged(lhs[0])));
         assert_eq!(change_map.get(lhs[0]), Some(Unchanged(rhs[0])));
@@ -780,68 +780,70 @@ mod tests {
         assert_eq!(change_map.get(lhs[2]), Some(Novel));
     }
 
-    #[test]
-    fn test_slider_two_steps() {
-        let arena = Arena::new();
-        let config = from_language(guess_language::Language::EmacsLisp);
+    // #[test]
+    // #[ignore = "Works if emacslisp exists"]
+    // fn test_slider_two_steps() {
+    //     let arena = Arena::new();
+    //     let config = from_language(guess_language::Language::EmacsLisp);
+    //
+    //     let lhs = parse(&arena, "A B", &config, false);
+    //     let rhs = parse(&arena, "A B X\n A B", &config, false);
+    //     init_all_info(&lhs, &rhs);
+    //
+    //     let mut change_map = ChangeMap::default();
+    //     change_map.insert(rhs[0], Unchanged(lhs[0]));
+    //     change_map.insert(rhs[1], Unchanged(lhs[1]));
+    //     change_map.insert(rhs[2], Novel);
+    //     change_map.insert(rhs[3], Novel);
+    //     change_map.insert(rhs[4], Novel);
+    //
+    //     fix_all_sliders(guess_language::Language::EmacsLisp, &rhs, &mut change_map);
+    //     assert_eq!(change_map.get(rhs[0]), Some(Novel));
+    //     assert_eq!(change_map.get(rhs[1]), Some(Novel));
+    //     assert_eq!(change_map.get(rhs[2]), Some(Novel));
+    //     assert_eq!(change_map.get(rhs[3]), Some(Unchanged(rhs[0])));
+    // }
 
-        let lhs = parse(&arena, "A B", &config, false);
-        let rhs = parse(&arena, "A B X\n A B", &config, false);
-        init_all_info(&lhs, &rhs);
-
-        let mut change_map = ChangeMap::default();
-        change_map.insert(rhs[0], Unchanged(lhs[0]));
-        change_map.insert(rhs[1], Unchanged(lhs[1]));
-        change_map.insert(rhs[2], Novel);
-        change_map.insert(rhs[3], Novel);
-        change_map.insert(rhs[4], Novel);
-
-        fix_all_sliders(guess_language::Language::EmacsLisp, &rhs, &mut change_map);
-        assert_eq!(change_map.get(rhs[0]), Some(Novel));
-        assert_eq!(change_map.get(rhs[1]), Some(Novel));
-        assert_eq!(change_map.get(rhs[2]), Some(Novel));
-        assert_eq!(change_map.get(rhs[3]), Some(Unchanged(rhs[0])));
-    }
-
-    /// If a list is partially unchanged but contains some novel
-    /// children, we should not slide it.
-    #[test]
-    fn test_slider_partially_unchanged() {
-        let arena = Arena::new();
-        let config = from_language(guess_language::Language::EmacsLisp);
-
-        let lhs = parse(&arena, "(A B) X \n (A B)", &config, false);
-        let rhs = parse(&arena, "((novel) A B)", &config, false);
-        init_all_info(&lhs, &rhs);
-
-        let lhs_first_list_children = match lhs[0] {
-            List { children, .. } => children,
-            Atom { .. } => unreachable!(),
-        };
-        let rhs_first_list_children = match rhs[0] {
-            List { children, .. } => children,
-            Atom { .. } => unreachable!(),
-        };
-
-        let mut change_map = ChangeMap::default();
-        change_map.insert(lhs[0], Unchanged(rhs[0]));
-        change_map.insert(lhs[1], Novel);
-        insert_deep_novel(lhs[2], &mut change_map);
-
-        change_map.insert(
-            lhs_first_list_children[0],
-            Unchanged(rhs_first_list_children[1]),
-        );
-        change_map.insert(
-            lhs_first_list_children[1],
-            Unchanged(rhs_first_list_children[2]),
-        );
-
-        fix_all_sliders(guess_language::Language::EmacsLisp, &lhs, &mut change_map);
-        assert_eq!(
-            change_map.get(lhs[2]),
-            Some(Novel),
-            "The novel node at the end should be unaffected"
-        );
-    }
+    // /// If a list is partially unchanged but contains some novel
+    // /// children, we should not slide it.
+    // #[test]
+    // #[ignore = "Works if emacslisp exists"]
+    // fn test_slider_partially_unchanged() {
+    //     let arena = Arena::new();
+    //     let config = from_language(guess_language::Language::Java);
+    //
+    //     let lhs = parse(&arena, "(A B) X \n (A B)", &config, false);
+    //     let rhs = parse(&arena, "((novel) A B)", &config, false);
+    //     init_all_info(&lhs, &rhs);
+    //
+    //     let lhs_first_list_children = match lhs[0] {
+    //         List { children, .. } => children,
+    //         Atom { .. } => unreachable!(),
+    //     };
+    //     let rhs_first_list_children = match rhs[0] {
+    //         List { children, .. } => children,
+    //         Atom { .. } => unreachable!(),
+    //     };
+    //
+    //     let mut change_map = ChangeMap::default();
+    //     change_map.insert(lhs[0], Unchanged(rhs[0]));
+    //     change_map.insert(lhs[1], Novel);
+    //     insert_deep_novel(lhs[2], &mut change_map);
+    //
+    //     change_map.insert(
+    //         lhs_first_list_children[0],
+    //         Unchanged(rhs_first_list_children[1]),
+    //     );
+    //     change_map.insert(
+    //         lhs_first_list_children[1],
+    //         Unchanged(rhs_first_list_children[2]),
+    //     );
+    //
+    //     fix_all_sliders(guess_language::Language::Java, &lhs, &mut change_map);
+    //     assert_eq!(
+    //         change_map.get(lhs[2]),
+    //         Some(Novel),
+    //         "The novel node at the end should be unaffected"
+    //     );
+    // }
 }

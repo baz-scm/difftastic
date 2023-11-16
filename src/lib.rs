@@ -392,3 +392,29 @@ fn check_only_text(
         has_syntactic_changes: has_changes,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::ffi::OsStr;
+
+    use super::*;
+
+    #[test]
+    fn test_diff_identical_content() {
+        let s = "foo";
+        let res = diff_file_content(
+            "foo.el",
+            None,
+            &FileArgument::from_path_argument(OsStr::new("foo.el")),
+            &FileArgument::from_path_argument(OsStr::new("foo.el")),
+            s,
+            s,
+            &DisplayOptions::default(),
+            &DiffOptions::default(),
+            &[],
+        );
+
+        assert_eq!(res.lhs_positions, vec![]);
+        assert_eq!(res.rhs_positions, vec![]);
+    }
+}
