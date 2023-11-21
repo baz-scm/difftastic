@@ -18,62 +18,62 @@ use strum::{EnumIter, IntoEnumIterator};
 /// corresponding tree-sitter parser.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 pub(crate) enum Language {
-    Ada,
+    // Ada,
     Bash,
     C,
-    Clojure,
-    CMake,
-    CommonLisp,
     CPlusPlus,
     CSharp,
+    // Clojure,
+    CMake,
+    // CommonLisp,
     Css,
-    Dart,
-    Elixir,
-    Elm,
-    Elvish,
-    EmacsLisp,
-    Erlang,
-    Gleam,
+    // Dart,
+    // Elixir,
+    // Elm,
+    // Elvish,
+    // EmacsLisp,
+    // Erlang,
+    // Gleam,
     Go,
-    Hack,
-    Hare,
-    Haskell,
+    // Hack,
+    // Hare,
+    // Haskell,
     Hcl,
     Html,
-    Janet,
+    // Janet,
     Java,
     JavaScript,
     JavascriptJsx,
     Json,
-    Julia,
+    // Julia,
     Kotlin,
-    LaTeX,
-    Lua,
+    // LaTeX,
+    // Lua,
     Make,
-    Newick,
+    // Newick,
     Nix,
-    OCaml,
-    OCamlInterface,
-    Pascal,
-    Perl,
+    // OCaml,
+    // OCamlInterface,
+    // Pascal,
+    // Perl,
     Php,
     Python,
-    Qml,
+    // Qml,
     R,
-    Racket,
+    // Racket,
     Ruby,
     Rust,
     Scala,
     Scss,
-    Solidity,
+    // Solidity,
     Sql,
-    Swift,
+    // Swift,
     Toml,
     TypeScript,
     TypeScriptTsx,
     Xml,
     Yaml,
-    Zig,
+    // Zig,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -104,62 +104,62 @@ pub(crate) fn language_override_from_name(name: &str) -> Option<LanguageOverride
 /// The language name shown to the user.
 pub(crate) fn language_name(language: Language) -> &'static str {
     match language {
-        Ada => "Ada",
+        // Ada => "Ada",
         Bash => "Bash",
         C => "C",
-        Clojure => "Clojure",
+        // Clojure => "Clojure",
         CMake => "CMake",
-        CommonLisp => "Common Lisp",
+        // CommonLisp => "Common Lisp",
         CPlusPlus => "C++",
         CSharp => "C#",
         Css => "CSS",
-        Dart => "Dart",
-        Elixir => "Elixir",
-        Elm => "Elm",
-        Elvish => "Elvish",
-        EmacsLisp => "Emacs Lisp",
-        Erlang => "Erlang",
-        Gleam => "Gleam",
+        // Dart => "Dart",
+        // Elixir => "Elixir",
+        // Elm => "Elm",
+        // Elvish => "Elvish",
+        // EmacsLisp => "Emacs Lisp",
+        // Erlang => "Erlang",
+        // Gleam => "Gleam",
         Go => "Go",
-        Hack => "Hack",
-        Hare => "Hare",
-        Haskell => "Haskell",
+        // Hack => "Hack",
+        // Hare => "Hare",
+        // Haskell => "Haskell",
         Hcl => "HCL",
         Html => "HTML",
-        Janet => "Janet",
+        // Janet => "Janet",
         Java => "Java",
         JavaScript => "JavaScript",
         JavascriptJsx => "JavaScript JSX",
         Json => "JSON",
-        Julia => "Julia",
+        // Julia => "Julia",
         Kotlin => "Kotlin",
-        LaTeX => "LaTeX",
-        Lua => "Lua",
+        // LaTeX => "LaTeX",
+        // Lua => "Lua",
         Make => "Make",
-        Newick => "Newick",
+        // Newick => "Newick",
         Nix => "Nix",
-        OCaml => "OCaml",
-        OCamlInterface => "OCaml Interface",
-        Pascal => "Pascal",
-        Perl => "Perl",
+        // OCaml => "OCaml",
+        // OCamlInterface => "OCaml Interface",
+        // Pascal => "Pascal",
+        // Perl => "Perl",
         Php => "PHP",
         Python => "Python",
-        Qml => "QML",
+        // Qml => "QML",
         R => "R",
-        Racket => "Racket",
+        // Racket => "Racket",
         Ruby => "Ruby",
         Rust => "Rust",
         Scala => "Scala",
         Scss => "Scss",
-        Solidity => "Solidity",
+        // Solidity => "Solidity",
         Sql => "SQL",
-        Swift => "Swift",
+        // Swift => "Swift",
         Toml => "TOML",
         TypeScript => "TypeScript",
         TypeScriptTsx => "TypeScript TSX",
         Xml => "XML",
         Yaml => "YAML",
-        Zig => "Zig",
+        // Zig => "Zig",
     }
 }
 
@@ -168,7 +168,7 @@ use Language::*;
 /// File globs that identify languages based on the file path.
 pub(crate) fn language_globs(language: Language) -> Vec<glob::Pattern> {
     let glob_strs: &'static [&'static str] = match language {
-        Ada => &["*.ada", "*.adb", "*.ads"],
+        // Ada => &["*.ada", "*.adb", "*.ads"],
         Bash => &[
             "*.bash",
             "*.bats",
@@ -218,44 +218,44 @@ pub(crate) fn language_globs(language: Language) -> Vec<glob::Pattern> {
             "zshrc",
         ],
         C => &["*.c"],
-        Clojure => &[
-            "*.bb", "*.boot", "*.clj", "*.cljc", "*.clje", "*.cljs", "*.cljx", "*.edn", "*.joke",
-            "*.joker",
-        ],
+        // Clojure => &[
+        //     "*.bb", "*.boot", "*.clj", "*.cljc", "*.clje", "*.cljs", "*.cljx", "*.edn", "*.joke",
+        //     "*.joker",
+        // ],
         CMake => &["*.cmake", "*.cmake.in", "CMakeLists.txt"],
-        CommonLisp => &["*.lisp", "*.lsp", "*.asd"],
-        // Treat .h as C++ rather than C. This is an arbitrary choice, but
-        // C++ is more widely used than C according to
-        // https://madnight.github.io/githut/
-        // Also, treating CUDA as C++
+        // CommonLisp => &["*.lisp", "*.lsp", "*.asd"],
+        // // Treat .h as C++ rather than C. This is an arbitrary choice, but
+        // // C++ is more widely used than C according to
+        // // https://madnight.github.io/githut/
+        // // Also, treating CUDA as C++
         CPlusPlus => &[
             "*.cc", "*.cpp", "*.h", "*.hh", "*.hpp", "*.ino", "*.cxx", "*.cu",
         ],
         CSharp => &["*.cs"],
         Css => &["*.css"],
-        Dart => &["*.dart"],
-        Elm => &["*.elm"],
-        EmacsLisp => &["*.el", ".emacs", "_emacs", "Cask"],
-        Elixir => &["*.ex", "*.exs"],
-        Elvish => &["*.elv"],
-        Erlang => &[
-            "*.erl",
-            "*.app.src",
-            "*.es",
-            "*.escript",
-            "*.hrl",
-            "*.xrl",
-            "*.yrl",
-            "Emakefile",
-        ],
-        Gleam => &["*.gleam"],
+        // Dart => &["*.dart"],
+        // Elm => &["*.elm"],
+        // EmacsLisp => &["*.el", ".emacs", "_emacs", "Cask"],
+        // Elixir => &["*.ex", "*.exs"],
+        // Elvish => &["*.elv"],
+        // Erlang => &[
+        //     "*.erl",
+        //     "*.app.src",
+        //     "*.es",
+        //     "*.escript",
+        //     "*.hrl",
+        //     "*.xrl",
+        //     "*.yrl",
+        //     "Emakefile",
+        // ],
+        // Gleam => &["*.gleam"],
         Go => &["*.go"],
-        Hack => &["*.hack", "*.hck", "*.hhi"],
-        Hare => &["*.ha"],
-        Haskell => &["*.hs"],
+        // Hack => &["*.hack", "*.hck", "*.hhi"],
+        // Hare => &["*.ha"],
+        // Haskell => &["*.hs"],
         Hcl => &["*.hcl", "*.nomad", "*.tf", "*.tfvars", "*.workflow"],
         Html => &["*.html", "*.htm", "*.xhtml"],
-        Janet => &["*.janet", "*.jdn"],
+        // Janet => &["*.janet", "*.jdn"],
         Java => &["*.java"],
         JavaScript => &["*.cjs", "*.js", "*.mjs", "*.snap"],
         Json => &[
@@ -287,10 +287,10 @@ pub(crate) fn language_globs(language: Language) -> Vec<glob::Pattern> {
             "mcmod.info",
         ],
         JavascriptJsx => &["*.jsx"],
-        Julia => &["*.jl"],
+        // Julia => &["*.jl"],
         Kotlin => &["*.kt", "*.ktm", "*.kts"],
-        LaTeX => &["*.aux", "*.cls", "*.sty", "*.tex"],
-        Lua => &["*.lua"],
+        // LaTeX => &["*.aux", "*.cls", "*.sty", "*.tex"],
+        // Lua => &["*.lua"],
         Make => &[
             "*.mak",
             "*.d",
@@ -312,17 +312,17 @@ pub(crate) fn language_globs(language: Language) -> Vec<glob::Pattern> {
             "makefile.sco",
             "mkfile",
         ],
-        Newick => &["*.nhx", "*.nwk", "*.nh"],
+        // Newick => &["*.nhx", "*.nwk", "*.nh"],
         Nix => &["*.nix"],
-        OCaml => &["*.ml"],
-        OCamlInterface => &["*.mli"],
-        Pascal => &["*.pas", "*.dfm", "*.dpr", "*.lpr", "*.pascal"],
-        Perl => &["*.pm", "*.pl"],
+        // OCaml => &["*.ml"],
+        // OCamlInterface => &["*.mli"],
+        // Pascal => &["*.pas", "*.dfm", "*.dpr", "*.lpr", "*.pascal"],
+        // Perl => &["*.pm", "*.pl"],
         Php => &["*.php"],
         Python => &["*.py", "*.py3", "*.pyi", "*.bzl", "TARGETS", "BUCK", "DEPS"],
-        Qml => &["*.qml"],
+        // Qml => &["*.qml"],
         R => &["*.R", "*.r", "*.rd", "*.rsx", ".Rprofile", "expr-dist"],
-        Racket => &["*.rkt"],
+        // Racket => &["*.rkt"],
         Ruby => &[
             "*.rb",
             "*.builder",
@@ -334,9 +334,9 @@ pub(crate) fn language_globs(language: Language) -> Vec<glob::Pattern> {
         Rust => &["*.rs"],
         Scala => &["*.scala", "*.sbt", "*.sc"],
         Scss => &["*.scss"],
-        Solidity => &["*.sol"],
+        // Solidity => &["*.sol"],
         Sql => &["*.sql", "*.pgsql"],
-        Swift => &["*.swift"],
+        // Swift => &["*.swift"],
         Toml => &[
             "*.toml",
             "Cargo.lock",
@@ -366,7 +366,7 @@ pub(crate) fn language_globs(language: Language) -> Vec<glob::Pattern> {
             ".project",
         ],
         Yaml => &["*.yaml", "*.yml"],
-        Zig => &["*.zig"],
+        // Zig => &["*.zig"],
     };
 
     glob_strs
@@ -397,10 +397,10 @@ pub(crate) fn guess(
         for (lang_override, patterns) in overrides {
             for pattern in patterns {
                 if pattern.matches(&file_name) {
-                    match lang_override {
-                        LanguageOverride::Language(lang) => return Some(*lang),
+                    return match lang_override {
+                        LanguageOverride::Language(lang) => Some(*lang),
                         LanguageOverride::PlainText => {
-                            return None;
+                            None
                         }
                     }
                 }
@@ -414,9 +414,9 @@ pub(crate) fn guess(
     if let Some(lang) = from_shebang(src) {
         return Some(lang);
     }
-    if looks_like_hacklang(path, src) {
-        return Some(Language::Hack);
-    }
+    // if looks_like_hacklang(path, src) {
+    //     return Some(Language::Hack);
+    // }
     if let Some(lang) = from_glob(path) {
         return Some(lang);
     }
@@ -443,44 +443,44 @@ fn from_emacs_mode_header(src: &str) -> Option<Language> {
             _ => "".into(),
         };
         let lang = match mode_name.to_ascii_lowercase().trim() {
-            "ada" => Some(Ada),
+            // "ada" => Some(Ada),
             "c" => Some(C),
-            "clojure" => Some(Clojure),
+            // "clojure" => Some(Clojure),
             "csharp" => Some(CSharp),
             "css" => Some(Css),
-            "dart" => Some(Dart),
+            // "dart" => Some(Dart),
             "c++" => Some(CPlusPlus),
-            "elixir" => Some(Elixir),
-            "elm" => Some(Elm),
-            "elvish" => Some(Elvish),
-            "emacs-lisp" => Some(EmacsLisp),
-            "gleam" => Some(Gleam),
+            // "elixir" => Some(Elixir),
+            // "elm" => Some(Elm),
+            // "elvish" => Some(Elvish),
+            // "emacs-lisp" => Some(EmacsLisp),
+            // "gleam" => Some(Gleam),
             "go" => Some(Go),
-            "haskell" => Some(Haskell),
+            // "haskell" => Some(Haskell),
             "hcl" => Some(Hcl),
             "html" => Some(Html),
-            "janet" => Some(Janet),
+            // "janet" => Some(Janet),
             "java" => Some(Java),
             "js" | "js2" => Some(JavaScript),
-            "lisp" => Some(CommonLisp),
+            // "lisp" => Some(CommonLisp),
             "nxml" => Some(Xml),
-            "perl" => Some(Perl),
+            // "perl" => Some(Perl),
             "python" => Some(Python),
-            "racket" => Some(Racket),
+            // "racket" => Some(Racket),
             "rjsx" => Some(JavascriptJsx),
             "ruby" => Some(Ruby),
             "rust" => Some(Rust),
             "scala" => Some(Scala),
             "scss" => Some(Scss),
             "sh" => Some(Bash),
-            "solidity" => Some(Solidity),
+            // "solidity" => Some(Solidity),
             "sql" => Some(Sql),
-            "swift" => Some(Swift),
+            // "swift" => Some(Swift),
             "toml" => Some(Toml),
-            "tuareg" => Some(OCaml),
+            // "tuareg" => Some(OCaml),
             "typescript" => Some(TypeScript),
             "yaml" => Some(Yaml),
-            "zig" => Some(Zig),
+            // "zig" => Some(Zig),
             _ => None,
         };
         if lang.is_some() {
@@ -505,30 +505,30 @@ fn from_shebang(src: &str) -> Option<Language> {
                         return Some(Bash)
                     }
                     "tcc" => return Some(C),
-                    "lisp" | "sbc" | "ccl" | "clisp" | "ecl" => return Some(CommonLisp),
-                    "elixir" => return Some(Elixir),
-                    "elvish" => return Some(Elvish),
-                    "escript" => return Some(Erlang),
-                    "hhvm" => return Some(Hack),
-                    "runghc" | "runhaskell" | "runhugs" => return Some(Haskell),
+                    // "lisp" | "sbc" | "ccl" | "clisp" | "ecl" => return Some(CommonLisp),
+                    // "elixir" => return Some(Elixir),
+                    // "elvish" => return Some(Elvish),
+                    // "escript" => return Some(Erlang),
+                    // "hhvm" => return Some(Hack),
+                    // "runghc" | "runhaskell" | "runhugs" => return Some(Haskell),
                     "chakra" | "d8" | "gjs" | "js" | "node" | "nodejs" | "qjs" | "rhino" | "v8"
                     | "v8-shell" => return Some(JavaScript),
-                    "ocaml" | "ocamlrun" | "ocamlscript" => return Some(OCaml),
-                    "perl" => return Some(Perl),
+                    // "ocaml" | "ocamlrun" | "ocamlscript" => return Some(OCaml),
+                    // "perl" => return Some(Perl),
                     "python" | "python2" | "python3" => return Some(Python),
                     "Rscript" => return Some(R),
                     "ruby" | "macruby" | "rake" | "jruby" | "rbx" => return Some(Ruby),
-                    "swift" => return Some(Swift),
+                    // "swift" => return Some(Swift),
                     "deno" | "ts-node" => return Some(TypeScript),
                     _ => {}
                 }
             }
         }
 
-        // Hack can use <?hh in files with a .php extension.
-        if first_line.starts_with("<?hh") {
-            return Some(Hack);
-        }
+        // // Hack can use <?hh in files with a .php extension.
+        // if first_line.starts_with("<?hh") {
+        //     return Some(Hack);
+        // }
     }
 
     None
@@ -560,8 +560,8 @@ mod tests {
 
     #[test]
     fn test_guess_by_extension() {
-        let path = Path::new("foo.el");
-        assert_eq!(guess(path, "", &[]), Some(EmacsLisp));
+        let path = Path::new("foo.java");
+        assert_eq!(guess(path, "", &[]), Some(Java));
     }
 
     #[test]
@@ -582,29 +582,29 @@ mod tests {
         assert_eq!(guess(path, "#!/usr/bin/env python", &[]), Some(Python));
     }
 
-    #[test]
-    fn test_guess_by_emacs_mode() {
-        let path = Path::new("foo");
-        assert_eq!(
-            guess(path, "; -*- mode: Lisp; eval: (auto-fill-mode 1); -*-", &[]),
-            Some(CommonLisp)
-        );
-    }
+    // #[test]
+    // fn test_guess_by_emacs_mode() {
+    //     let path = Path::new("foo");
+    //     assert_eq!(
+    //         guess(path, "; -*- mode: Lisp; eval: (auto-fill-mode 1); -*-", &[]),
+    //         Some(CommonLisp)
+    //     );
+    // }
 
-    #[test]
-    fn test_guess_by_emacs_mode_second_line() {
-        let path = Path::new("foo");
-        assert_eq!(
-            guess(path, "#!/bin/bash\n; -*- mode: Lisp; -*-", &[]),
-            Some(CommonLisp)
-        );
-    }
+    // #[test]
+    // fn test_guess_by_emacs_mode_second_line() {
+    //     let path = Path::new("foo");
+    //     assert_eq!(
+    //         guess(path, "#!/bin/bash\n; -*- mode: Lisp; -*-", &[]),
+    //         Some(CommonLisp)
+    //     );
+    // }
 
-    #[test]
-    fn test_guess_by_emacs_mode_shorthand() {
-        let path = Path::new("foo");
-        assert_eq!(guess(path, "(* -*- tuareg -*- *)", &[]), Some(OCaml));
-    }
+    // #[test]
+    // fn test_guess_by_emacs_mode_shorthand() {
+    //     let path = Path::new("foo");
+    //     assert_eq!(guess(path, "(* -*- tuareg -*- *)", &[]), Some(OCaml));
+    // }
 
     #[test]
     fn test_guess_by_emacs_mode_shorthand_no_spaces() {

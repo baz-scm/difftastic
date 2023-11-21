@@ -4,11 +4,11 @@ use lazy_static::lazy_static;
 use line_numbers::LinePositions;
 use regex::Regex;
 
-use crate::words::split_words;
 use crate::{
     diff::myers_diff,
     parse::syntax::{AtomKind, MatchKind, MatchedPos, TokenKind},
 };
+use crate::words::split_words;
 
 fn split_lines_keep_newline(s: &str) -> Vec<&str> {
     lazy_static! {

@@ -5,6 +5,7 @@ use std::{cmp::Reverse, env};
 
 use bumpalo::Bump;
 use itertools::Itertools;
+use log::{info, debug};
 use radix_heap::RadixHeapMap;
 
 use crate::{
@@ -287,7 +288,7 @@ mod tests {
             actions,
             vec![UnchangedNode {
                 probably_punctuation: false,
-                depth_difference: 0
+                depth_difference: 0,
             }]
         );
     }
@@ -532,7 +533,7 @@ mod tests {
                 ReplacedComment {
                     levenshtein_pct: 95
                 },
-                NovelAtomLHS {}
+                NovelAtomLHS {},
             ]
         );
     }

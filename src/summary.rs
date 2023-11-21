@@ -55,7 +55,8 @@ pub(crate) struct DiffResult {
 }
 
 impl DiffResult {
-    pub(crate) fn has_reportable_change(&self) -> bool {
+    #[allow(dead_code)]
+    pub fn has_reportable_change(&self) -> bool {
         if matches!(self.lhs_src, FileContent::Binary)
             || matches!(self.rhs_src, FileContent::Binary)
         {
