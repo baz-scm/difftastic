@@ -34,6 +34,7 @@ pub mod options;
 pub mod parse;
 pub mod summary;
 pub mod version;
+pub mod words;
 
 pub fn diff<'a>(lhs_path: &'a PathBuf, rhs_path: &'a PathBuf, display_options: DisplayOptions,
                 diff_options: DiffOptions, language_overrides: Vec<(LanguageOverride, Vec<Pattern>)>) -> impl ParallelIterator<Item=DiffResult> + 'a {
