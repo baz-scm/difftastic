@@ -27,16 +27,16 @@ pub(crate) enum ColorOutput {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct DisplayOptions {
-    pub(crate) background_color: BackgroundColor,
-    pub(crate) use_color: bool,
-    pub(crate) display_mode: DisplayMode,
-    pub(crate) print_unchanged: bool,
-    pub(crate) tab_width: usize,
-    pub(crate) display_width: usize,
-    pub(crate) num_context_lines: u32,
-    pub(crate) syntax_highlight: bool,
-    pub(crate) sort_paths: bool,
+pub struct DisplayOptions {
+    pub background_color: BackgroundColor,
+    pub use_color: bool,
+    pub display_mode: DisplayMode,
+    pub print_unchanged: bool,
+    pub tab_width: usize,
+    pub display_width: usize,
+    pub num_context_lines: u32,
+    pub syntax_highlight: bool,
+    pub sort_paths: bool,
 }
 
 impl Default for DisplayOptions {
@@ -56,13 +56,13 @@ impl Default for DisplayOptions {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct DiffOptions {
-    pub(crate) graph_limit: usize,
-    pub(crate) byte_limit: usize,
-    pub(crate) parse_error_limit: usize,
-    pub(crate) check_only: bool,
-    pub(crate) ignore_comments: bool,
-    pub(crate) strip_cr: bool,
+pub struct DiffOptions {
+    pub graph_limit: usize,
+    pub byte_limit: usize,
+    pub parse_error_limit: usize,
+    pub check_only: bool,
+    pub ignore_comments: bool,
+    pub strip_cr: bool,
 }
 
 impl Default for DiffOptions {
