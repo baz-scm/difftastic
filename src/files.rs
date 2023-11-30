@@ -14,7 +14,7 @@ use rustc_hash::FxHashSet;
 use crate::exit_codes::EXIT_BAD_ARGUMENTS;
 use crate::options::FileArgument;
 
-pub(crate) fn read_file_or_die(path: &FileArgument) -> Vec<u8> {
+pub fn read_file_or_die(path: &FileArgument) -> Vec<u8> {
     match read_file_arg(path) {
         Ok(src) => src,
         Err(e) => {

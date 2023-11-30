@@ -88,7 +88,7 @@ pub(crate) enum DisplayMode {
 }
 
 #[derive(Eq, PartialEq, Debug)]
-pub(crate) enum FileArgument {
+pub enum FileArgument {
     NamedPath(PathBuf),
     Stdin,
     DevNull,
