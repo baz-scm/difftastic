@@ -349,12 +349,12 @@ pub(crate) fn comment_positions<'a>(nodes: &[&'a Syntax<'a>]) -> Vec<SingleLineS
         }
     }
 
-    let mut res = vec![];
+    let mut positions = vec![];
     for node in nodes {
-        walk_comment_positions(node, &mut res);
+        walk_comment_positions(node, &mut positions);
     }
 
-    res
+    positions
 }
 
 /// Initialise all the fields in `SyntaxInfo`.
@@ -667,13 +667,13 @@ fn split_atom_words(
     let mut offset = 0;
     let mut opposite_offset = 0;
 
-    let mut res = vec![];
+    let mut mps = vec![];
     for diff_res in word_diffs {
         match diff_res {
             myers_diff::DiffResult::Left(word) => {
                 // This word is novel to this side.
                 if !is_all_whitespace(word) {
-                    res.push(MatchedPos {
+                    mps.push(MatchedPos {
                         kind: MatchKind::NovelWord {
                             highlight: TokenKind::Atom(kind),
                         },
@@ -699,7 +699,7 @@ fn split_atom_words(
                     opposite_offset + opposite_word.len(),
                 );
 
-                res.push(MatchedPos {
+                mps.push(MatchedPos {
                     kind: MatchKind::NovelLinePart {
                         highlight: TokenKind::Atom(kind),
                         self_pos: word_pos,
@@ -717,7 +717,7 @@ fn split_atom_words(
         }
     }
 
-    res
+    mps
 }
 
 /// Are there sufficient common words that we should only highlight
@@ -749,13 +749,34 @@ fn has_common_words(word_diffs: &Vec<myers_diff::DiffResult<&&str>>) -> bool {
     unchanged_count > 2 && unchanged_count * 2 >= novel_count
 }
 
+/// Skip line spans at the beginning or end that have zero width.
+fn filter_empty_ends(line_spans: &[SingleLineSpan]) -> Vec<SingleLineSpan> {
+    let mut spans: Vec<SingleLineSpan> = vec![];
+
+    for (i, span) in line_spans.iter().enumerate() {
+        if (i == 0 || i == line_spans.len() - 1) && span.start_col == span.end_col {
+            continue;
+        }
+
+        spans.push(*span);
+    }
+
+    spans
+}
+
 impl MatchedPos {
     fn new(
         ck: ChangeKind,
         highlight: TokenKind,
         pos: &[SingleLineSpan],
-        is_close: bool,
+        is_close_delim: bool,
     ) -> Vec<Self> {
+        // Don't create a MatchedPos for empty positions at the start
+        // or end. We still want empty positions in the middle of
+        // multiline atoms, as a multiline string literal may include
+        // empty lines.
+        let pos = filter_empty_ends(pos);
+
         match ck {
             ReplacedComment(this, opposite) | ReplacedString(this, opposite) => {
                 let this_content = match this {
@@ -781,7 +802,7 @@ impl MatchedPos {
                     AtomKind::Comment
                 };
 
-                split_atom_words(this_content, pos, opposite_content, opposite_pos, kind)
+                split_atom_words(this_content, &pos, opposite_content, opposite_pos, kind)
             }
             Unchanged(opposite) => {
                 let opposite_pos = match opposite {
@@ -790,7 +811,7 @@ impl MatchedPos {
                         close_position,
                         ..
                     } => {
-                        if is_close {
+                        if is_close_delim {
                             close_position.clone()
                         } else {
                             open_position.clone()
@@ -807,18 +828,9 @@ impl MatchedPos {
                 };
 
                 // Create a MatchedPos for every line that `pos` covers.
-                let mut res = vec![];
-                for (i, line_pos) in pos.iter().enumerate() {
-                    // Don't create a MatchedPos for empty positions
-                    // at the start or end. We still want empty
-                    // positions in the middle of multiline atoms, as
-                    // a multiline string literal may include empty
-                    // lines.
-                    if (i == 0 || i == pos.len() - 1) && line_pos.start_col == line_pos.end_col {
-                        continue;
-                    }
-
-                    res.push(Self {
+                let mut mps = vec![];
+                for line_pos in &pos {
+                    mps.push(Self {
                         kind: kind.clone(),
                         pos: *line_pos,
                     });
@@ -827,40 +839,31 @@ impl MatchedPos {
                     // MatchedPos on the LHS and RHS. This allows us
                     // to consider unchanged MatchedPos values
                     // pairwise.
-                    if res.len() == opposite_pos_len {
+                    if mps.len() == opposite_pos_len {
                         break;
                     }
                 }
-                res
+                mps
             }
             Novel => {
                 let kind = MatchKind::Novel { highlight };
                 // Create a MatchedPos for every line that `pos` covers.
-                let mut res = vec![];
-                for (i, line_pos) in pos.iter().enumerate() {
-                    // Don't create a MatchedPos for entirly empty positions. This
+                let mut mps = vec![];
+                for line_pos in &pos {
+                    // Don't create a MatchedPos for entirely empty positions. This
                     // occurs when we have lists with empty open/close
                     // delimiter positions, such as the top-level list of syntax items.
                     if pos.len() == 1 && line_pos.start_col == line_pos.end_col {
                         continue;
                     }
 
-                    // Don't create a MatchedPos for empty positions
-                    // at the start or end. We still want empty
-                    // positions in the middle of multiline atoms, as
-                    // a multiline string literal may include empty
-                    // lines.
-                    if (i == 0 || i == pos.len() - 1) && line_pos.start_col == line_pos.end_col {
-                        continue;
-                    }
-
-                    res.push(Self {
+                    mps.push(Self {
                         kind: kind.clone(),
                         pos: *line_pos,
                     });
                 }
 
-                res
+                mps
             }
         }
     }

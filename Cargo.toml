@@ -46,15 +46,22 @@ tree-sitter = "0.20.9"
 libc = "0.2.108"
 log = "0.4.14"
 pretty_env_logger = "0.5.0"
-# is-terminal is a dependency of env_logger, but 0.4.8 requires rust 1.63.
-is-terminal = ">= 0.4, < 0.4.8"
 
 mimalloc = { version = "0.1.28", default-features = false }
 # Pin libmimalloc-sys due to 0.1.25 producing a huge slowdown in very
 # large textual files, as discussed in #297.
 libmimalloc-sys = "=0.1.24"
 radix-heap = "0.4.2"
-walkdir = "2.3.3"
+# ignore 0.4.19 requires scoped_threads, which was added in rust 1.63.
+ignore = ">= 0.4, < 0.4.19"
+# aho-corasick is a dependency of regex and ignore. In 1.1.0 it added
+# usage of the target feature 'neon' on aarch64, which is unstable on
+# rust 1.60.
+#
+# https://github.com/BurntSushi/aho-corasick/commit/0be6fe43822aeb193d8894fd1400c8b843320ef0
+# https://github.com/rust-lang/rust/pull/90621#issuecomment-1068998914
+aho-corasick = ">= 1.0, < 1.1.0"
+const_format = "0.2.22"
 owo-colors = "3.5.0"
 wu-diff = "0.1.2"
 rayon = "1.7.0"
