@@ -1,7 +1,7 @@
 use std::collections::hash_map::IntoValues;
 use std::collections::HashMap;
-use itertools::Itertools;
 
+use itertools::Itertools;
 use line_numbers::LineNumber;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
@@ -207,13 +207,21 @@ fn sort_lines(lines: IntoValues<(Option<u32>, Option<u32>), Line>) -> Vec<Line> 
             if l1.lhs.is_none() || l2.lhs.is_none() {
                 return std::cmp::Ordering::Equal;
             }
-            l1.lhs.as_ref().unwrap().line_number.cmp(&l2.lhs.as_ref().unwrap().line_number)
+            l1.lhs
+                .as_ref()
+                .unwrap()
+                .line_number
+                .cmp(&l2.lhs.as_ref().unwrap().line_number)
         })
         .sorted_by(|l1, l2| {
             if l1.rhs.is_none() || l2.rhs.is_none() {
                 return std::cmp::Ordering::Equal;
             }
-            l1.rhs.as_ref().unwrap().line_number.cmp(&l2.rhs.as_ref().unwrap().line_number)
+            l1.rhs
+                .as_ref()
+                .unwrap()
+                .line_number
+                .cmp(&l2.rhs.as_ref().unwrap().line_number)
         })
         .collect();
     result
@@ -335,7 +343,7 @@ fn matches_for_line(matches: &[MatchedPos], line_num: LineNumber) -> Vec<&Matche
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_sort_lines_multiple_missing() {
         let mut unordered_lines = HashMap::new();
@@ -343,9 +351,20 @@ mod tests {
         unordered_lines.insert((None, Some(2)), Line::new(None, Some(2)));
         unordered_lines.insert((Some(2), Some(3)), Line::new(Some(2), Some(3)));
         unordered_lines.insert((Some(3), None), Line::new(Some(3), None));
-        
-        let sorted = sort_lines(unordered_lines.into_values()).into_iter().map(|l| (l.lhs.map(|s| s.line_number), l.rhs.map(|s| s.line_number))).collect::<Vec<_>>();
-        
-        assert_eq!(sorted, vec![(Some(1), Some(1)), (None, Some(2)), (Some(2), Some(3)), (Some(3), None)]);
+
+        let sorted = sort_lines(unordered_lines.into_values())
+            .into_iter()
+            .map(|l| (l.lhs.map(|s| s.line_number), l.rhs.map(|s| s.line_number)))
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            sorted,
+            vec![
+                (Some(1), Some(1)),
+                (None, Some(2)),
+                (Some(2), Some(3)),
+                (Some(3), None)
+            ]
+        );
     }
 }
