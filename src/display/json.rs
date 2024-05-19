@@ -1,7 +1,3 @@
-use std::collections::hash_map::IntoValues;
-use std::collections::HashMap;
-
-use itertools::Itertools;
 use line_numbers::LineNumber;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
@@ -110,18 +106,15 @@ impl<'f> From<&'f DiffResult> for File<'f> {
 
                 let mut chunks = Vec::with_capacity(hunks.len());
                 for hunk in &hunks {
-                    let mut lines = HashMap::with_capacity(hunk.lines.len());
+                    let mut lines = Vec::with_capacity(hunk.lines.len());
 
                     let (start_i, end_i) = matched_lines_indexes_for_hunk(matched_lines, hunk, 3);
                     let aligned_lines = &matched_lines[start_i..end_i];
                     matched_lines = &matched_lines[start_i..];
 
                     for (lhs_line_num, rhs_line_num) in aligned_lines {
-                        let line = lines
-                            .entry((lhs_line_num.map(|l| l.0), rhs_line_num.map(|l| l.0)))
-                            .or_insert_with(|| {
-                                Line::new(lhs_line_num.map(|l| l.0), rhs_line_num.map(|l| l.0))
-                            });
+                        let mut line =
+                            Line::new(lhs_line_num.map(|l| l.0), rhs_line_num.map(|l| l.0));
 
                         if let Some(line_num) = lhs_line_num {
                             add_changes_to_side(
@@ -139,10 +132,10 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                                 &summary.rhs_positions,
                             );
                         }
+                        lines.push(line);
                     }
-                    let sorted_lines = sort_lines(lines.into_values());
 
-                    chunks.push(sorted_lines);
+                    chunks.push(lines);
                 }
 
                 File::with_sections(&summary.file_format, &summary.display_path, chunks)
@@ -199,31 +192,6 @@ impl<'l> Line<'l> {
             rhs: rhs_number.map(Side::new),
         }
     }
-}
-
-fn sort_lines(lines: IntoValues<(Option<u32>, Option<u32>), Line>) -> Vec<Line> {
-    lines
-        .sorted_by(|l1, l2| {
-            if l1.lhs.is_none() || l2.lhs.is_none() {
-                return std::cmp::Ordering::Equal;
-            }
-            l1.lhs
-                .as_ref()
-                .unwrap()
-                .line_number
-                .cmp(&l2.lhs.as_ref().unwrap().line_number)
-        })
-        .sorted_by(|l1, l2| {
-            if l1.rhs.is_none() || l2.rhs.is_none() {
-                return std::cmp::Ordering::Equal;
-            }
-            l1.rhs
-                .as_ref()
-                .unwrap()
-                .line_number
-                .cmp(&l2.rhs.as_ref().unwrap().line_number)
-        })
-        .collect()
 }
 
 #[derive(Debug, Serialize)]
@@ -337,33 +305,4 @@ fn matches_for_line(matches: &[MatchedPos], line_num: LineNumber) -> Vec<&Matche
         .filter(|m| m.pos.line == line_num)
         .filter(|m| m.kind.is_novel())
         .collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_sort_lines_multiple_missing() {
-        let mut unordered_lines = HashMap::new();
-        unordered_lines.insert((Some(1), Some(1)), Line::new(Some(1), Some(1)));
-        unordered_lines.insert((None, Some(2)), Line::new(None, Some(2)));
-        unordered_lines.insert((Some(2), Some(3)), Line::new(Some(2), Some(3)));
-        unordered_lines.insert((Some(3), None), Line::new(Some(3), None));
-
-        let sorted = sort_lines(unordered_lines.into_values())
-            .into_iter()
-            .map(|l| (l.lhs.map(|s| s.line_number), l.rhs.map(|s| s.line_number)))
-            .collect::<Vec<_>>();
-
-        assert_eq!(
-            sorted,
-            vec![
-                (Some(1), Some(1)),
-                (None, Some(2)),
-                (Some(2), Some(3)),
-                (Some(3), None)
-            ]
-        );
-    }
 }
