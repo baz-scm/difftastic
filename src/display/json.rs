@@ -202,7 +202,7 @@ impl<'l> Line<'l> {
 }
 
 fn sort_lines(lines: IntoValues<(Option<u32>, Option<u32>), Line>) -> Vec<Line> {
-    let mut result = lines
+    lines
         .sorted_by(|l1, l2| {
             if l1.lhs.is_none() || l2.lhs.is_none() {
                 return std::cmp::Ordering::Equal;
@@ -223,8 +223,7 @@ fn sort_lines(lines: IntoValues<(Option<u32>, Option<u32>), Line>) -> Vec<Line> 
                 .line_number
                 .cmp(&l2.rhs.as_ref().unwrap().line_number)
         })
-        .collect();
-    result
+        .collect()
 }
 
 #[derive(Debug, Serialize)]

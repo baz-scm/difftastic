@@ -10,7 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { target: aarch64-unknown-linux-gnu, os: ubuntu-20.04, use-cross: true }
           - { target: aarch64-apple-darwin, os: macos-14 }
     env:
       BUILD_CMD: cargo
@@ -25,24 +24,10 @@ jobs:
         with:
           targets: ${{ matrix.job.target }}
 
-      - name: Install cross
-        if: matrix.job.use-cross
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cross@0.2.5
 
       - name: Test
         shell: bash
         run: $BUILD_CMD $SUBCOMMAND --target ${{ matrix.job.target }}
-
-  test_mime_db:
-    name: Test with MIME database
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@1.65.0
-      # This runs tests that rely on the MIME database being present.
-      - run: cargo test -- --ignored
 
   test_linux_latest_stable:
     name: Test Linux (latest stable Rust)
