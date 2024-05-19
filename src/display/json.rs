@@ -1,4 +1,6 @@
+use std::collections::hash_map::IntoValues;
 use std::collections::HashMap;
+use itertools::Itertools;
 
 use line_numbers::LineNumber;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
@@ -7,7 +9,6 @@ use crate::{
     display::{
         context::{all_matched_lines_filled, opposite_positions},
         hunks::{matched_lines_indexes_for_hunk, matched_pos_to_hunks, merge_adjacent},
-        side_by_side::lines_with_novel,
     },
     lines::MaxLine,
     parse::syntax::{self, MatchedPos, StringKind},
@@ -99,9 +100,6 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                 let lhs_lines = lhs_src.split('\n').collect::<Vec<&str>>();
                 let rhs_lines = rhs_src.split('\n').collect::<Vec<&str>>();
 
-                let (lhs_lines_with_novel, rhs_lines_with_novel) =
-                    lines_with_novel(&summary.lhs_positions, &summary.rhs_positions);
-
                 let matched_lines = all_matched_lines_filled(
                     &summary.lhs_positions,
                     &summary.rhs_positions,
@@ -114,18 +112,11 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                 for hunk in &hunks {
                     let mut lines = HashMap::with_capacity(hunk.lines.len());
 
-                    let (start_i, end_i) = matched_lines_indexes_for_hunk(matched_lines, hunk, 0);
+                    let (start_i, end_i) = matched_lines_indexes_for_hunk(matched_lines, hunk, 3);
                     let aligned_lines = &matched_lines[start_i..end_i];
                     matched_lines = &matched_lines[start_i..];
 
                     for (lhs_line_num, rhs_line_num) in aligned_lines {
-                        if !lhs_lines_with_novel.contains(&lhs_line_num.unwrap_or(LineNumber(0)))
-                            && !rhs_lines_with_novel
-                                .contains(&rhs_line_num.unwrap_or(LineNumber(0)))
-                        {
-                            continue;
-                        }
-
                         let line = lines
                             .entry((lhs_line_num.map(|l| l.0), rhs_line_num.map(|l| l.0)))
                             .or_insert_with(|| {
@@ -149,8 +140,9 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                             );
                         }
                     }
+                    let sorted_lines = sort_lines(lines.into_values());
 
-                    chunks.push(lines.into_values().collect());
+                    chunks.push(sorted_lines);
                 }
 
                 File::with_sections(&summary.file_format, &summary.display_path, chunks)
@@ -209,6 +201,24 @@ impl<'l> Line<'l> {
     }
 }
 
+fn sort_lines(lines: IntoValues<(Option<u32>, Option<u32>), Line>) -> Vec<Line> {
+    let mut result = lines
+        .sorted_by(|l1, l2| {
+            if l1.lhs.is_none() || l2.lhs.is_none() {
+                return std::cmp::Ordering::Equal;
+            }
+            l1.lhs.as_ref().unwrap().line_number.cmp(&l2.lhs.as_ref().unwrap().line_number)
+        })
+        .sorted_by(|l1, l2| {
+            if l1.rhs.is_none() || l2.rhs.is_none() {
+                return std::cmp::Ordering::Equal;
+            }
+            l1.rhs.as_ref().unwrap().line_number.cmp(&l2.rhs.as_ref().unwrap().line_number)
+        })
+        .collect();
+    result
+}
+
 #[derive(Debug, Serialize)]
 struct Side<'s> {
     line_number: u32,
@@ -230,6 +240,7 @@ struct Change<'c> {
     end: u32,
     content: &'c str,
     highlight: Highlight,
+    highlight_type: &'c str,
 }
 
 #[derive(Debug, Serialize)]
@@ -297,7 +308,7 @@ fn add_changes_to_side<'s>(
     side: &mut Side<'s>,
     line_num: LineNumber,
     src_lines: &[&'s str],
-    all_matches: &[MatchedPos],
+    all_matches: &'s [MatchedPos],
 ) {
     let src_line = src_lines[line_num.0 as usize];
 
@@ -308,6 +319,7 @@ fn add_changes_to_side<'s>(
             end: m.pos.end_col,
             content: &src_line[(m.pos.start_col as usize)..(m.pos.end_col as usize)],
             highlight: Highlight::from_match(&m.kind),
+            highlight_type: m.kind.as_ref(),
         })
     }
 }
@@ -318,4 +330,22 @@ fn matches_for_line(matches: &[MatchedPos], line_num: LineNumber) -> Vec<&Matche
         .filter(|m| m.pos.line == line_num)
         .filter(|m| m.kind.is_novel())
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_sort_lines_multiple_missing() {
+        let mut unordered_lines = HashMap::new();
+        unordered_lines.insert((Some(1), Some(1)), Line::new(Some(1), Some(1)));
+        unordered_lines.insert((None, Some(2)), Line::new(None, Some(2)));
+        unordered_lines.insert((Some(2), Some(3)), Line::new(Some(2), Some(3)));
+        unordered_lines.insert((Some(3), None), Line::new(Some(3), None));
+        
+        let sorted = sort_lines(unordered_lines.into_values()).into_iter().map(|l| (l.lhs.map(|s| s.line_number), l.rhs.map(|s| s.line_number))).collect::<Vec<_>>();
+        
+        assert_eq!(sorted, vec![(Some(1), Some(1)), (None, Some(2)), (Some(2), Some(3)), (Some(3), None)]);
+    }
 }
