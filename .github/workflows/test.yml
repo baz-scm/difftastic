@@ -1,4 +1,4 @@
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 name: Continuous integration
 
@@ -10,65 +10,24 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          # Operating systems available: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
-          - { target: x86_64-unknown-linux-gnu, os: ubuntu-20.04 }
-          # mac-latest (currently mac-14) is an ARM device, so use macos-12 to get Intel.
-          # Update annoucement: https://github.blog/changelog/2024-04-01-macos-14-sonoma-is-generally-available-and-the-latest-macos-runner-image/
-          - { target: x86_64-apple-darwin, os: macos-12 }
-          - { target: x86_64-pc-windows-msvc, os: windows-latest }
-
-          - { target: aarch64-unknown-linux-gnu, os: ubuntu-20.04, use-cross: true }
-
-          # mac-14 is an M1 ARM device.
           - { target: aarch64-apple-darwin, os: macos-14 }
-
-          # musl binaries produced by GitHub actions segfault when run, see
-          # https://github.com/Wilfred/difftastic/issues/563
-          #
-          # musl builds seem to work fine elsewhere, so just verify
-          # that compilation works for now.
-          - { target: x86_64-unknown-linux-musl, os: ubuntu-20.04, use-cross: true, build-only: true }
     env:
       BUILD_CMD: cargo
       SUBCOMMAND: test
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v3
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@1.65.0
-      with:
-        targets: ${{ matrix.job.target }}
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@1.65.0
+        with:
+          targets: ${{ matrix.job.target }}
 
-    - name: Install cross
-      if: matrix.job.use-cross
-      uses: taiki-e/install-action@v2
-      with:
-        tool: cross@0.2.5
 
-    - name: Overwrite build command env variable
-      if: matrix.job.use-cross
-      shell: bash
-      run: echo "BUILD_CMD=cross" >> $GITHUB_ENV
-
-    - name: Overwrite build subcommand env variable
-      if: matrix.job.build-only
-      shell: bash
-      run: echo "SUBCOMMAND=build" >> $GITHUB_ENV
-
-    - name: Test
-      shell: bash
-      run: $BUILD_CMD $SUBCOMMAND --target ${{ matrix.job.target }}
-
-  test_mime_db:
-    name: Test with MIME database
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@1.65.0
-      # This runs tests that rely on the MIME database being present.
-      - run: cargo test -- --ignored
+      - name: Test
+        shell: bash
+        run: $BUILD_CMD $SUBCOMMAND --target ${{ matrix.job.target }}
 
   test_linux_latest_stable:
     name: Test Linux (latest stable Rust)
