@@ -18,6 +18,7 @@ enum Status {
     Changed,
     Created,
     Deleted,
+    Renamed,
 }
 
 #[derive(Debug)]
@@ -95,11 +96,16 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                 );
 
                 if hunks.is_empty() {
+                    let status = if File::extract_old_path(&summary.extra_info).is_some() {
+                        Status::Renamed
+                    } else {
+                        Status::Unchanged
+                    };
                     return File::with_status(
                         &summary.file_format,
                         &summary.display_path,
                         &summary.extra_info,
-                        Status::Unchanged,
+                        status,
                     );
                 }
 
