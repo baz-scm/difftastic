@@ -24,6 +24,7 @@ enum Status {
 struct File<'f> {
     language: &'f FileFormat,
     path: &'f str,
+    old_path: Option<&'f str>,
     chunks: Vec<Vec<Line<'f>>>,
     status: Status,
 }
@@ -32,21 +33,44 @@ impl<'f> File<'f> {
     fn with_sections(
         language: &'f FileFormat,
         path: &'f str,
+        extra_info: &'f Option<String>,
         chunks: Vec<Vec<Line<'f>>>,
     ) -> File<'f> {
+        let old_path = Self::extract_old_path(extra_info);
         File {
             language,
             path,
             chunks,
+            old_path,
             status: Status::Changed,
         }
     }
 
-    fn with_status(language: &'f FileFormat, path: &'f str, status: Status) -> File<'f> {
+    fn extract_old_path(extra_info: &'f Option<String>) -> Option<&'f str> {
+        match extra_info {
+            None => None,
+            Some(s) => {
+                if s.starts_with("Renamed from ") {
+                    let after_branch_name = s.find(" to ").unwrap();
+                    Some(&s["Renamed from ".len()..after_branch_name])
+                } else {
+                    None
+                }
+            }
+        }
+    }
+
+    fn with_status(
+        language: &'f FileFormat,
+        path: &'f str,
+        extra_info: &'f Option<String>,
+        status: Status,
+    ) -> File<'f> {
         File {
             language,
             path,
             chunks: Vec::new(),
+            old_path: Self::extract_old_path(extra_info),
             status,
         }
     }
@@ -74,6 +98,7 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                     return File::with_status(
                         &summary.file_format,
                         &summary.display_path,
+                        &summary.extra_info,
                         Status::Unchanged,
                     );
                 }
@@ -82,6 +107,7 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                     return File::with_status(
                         &summary.file_format,
                         &summary.display_path,
+                        &summary.extra_info,
                         Status::Created,
                     );
                 }
@@ -89,6 +115,7 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                     return File::with_status(
                         &summary.file_format,
                         &summary.display_path,
+                        &summary.extra_info,
                         Status::Deleted,
                     );
                 }
@@ -138,7 +165,12 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                     chunks.push(lines);
                 }
 
-                File::with_sections(&summary.file_format, &summary.display_path, chunks)
+                File::with_sections(
+                    &summary.file_format,
+                    &summary.display_path,
+                    &summary.extra_info,
+                    chunks,
+                )
             }
             (FileContent::Binary, FileContent::Binary) => {
                 let status = if summary.has_byte_changes {
@@ -146,11 +178,19 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                 } else {
                     Status::Unchanged
                 };
-                File::with_status(&FileFormat::Binary, &summary.display_path, status)
+                File::with_status(
+                    &FileFormat::Binary,
+                    &summary.display_path,
+                    &summary.extra_info,
+                    status,
+                )
             }
-            (_, FileContent::Binary) | (FileContent::Binary, _) => {
-                File::with_status(&FileFormat::Binary, &summary.display_path, Status::Changed)
-            }
+            (_, FileContent::Binary) | (FileContent::Binary, _) => File::with_status(
+                &FileFormat::Binary,
+                &summary.display_path,
+                &summary.extra_info,
+                Status::Changed,
+            ),
         }
     }
 }
@@ -171,6 +211,9 @@ impl<'f> Serialize for File<'f> {
 
         file.serialize_field("language", &format!("{}", self.language))?;
         file.serialize_field("path", &self.path)?;
+        if let Some(old_path) = self.old_path {
+            file.serialize_field("old_path", &format!("{}", old_path))?;
+        }
         file.serialize_field("status", &self.status)?;
 
         file.end()
