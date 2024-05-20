@@ -6,6 +6,7 @@ use std::{cell::Cell, env, fmt, hash::Hash, num::NonZeroU32};
 
 use line_numbers::LinePositions;
 use line_numbers::SingleLineSpan;
+use strum::AsRefStr;
 use typed_arena::Arena;
 
 use self::Syntax::*;
@@ -589,7 +590,7 @@ pub(crate) enum TokenKind {
 }
 
 /// A matched token (an atom, a delimiter, or a comment word).
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, AsRefStr)]
 pub(crate) enum MatchKind {
     UnchangedToken {
         highlight: TokenKind,
