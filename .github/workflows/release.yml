@@ -1,24 +1,53 @@
+name: Release
+
 on:
-  release:
-    types: [ created ]
+  push:
+    tags:
+      - "[0-9]+.*"
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
-  release:
-    name: release ${{ matrix.target }}
-    runs-on: ubuntu-latest
+  create-release:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          # Create a draft release so we can add the changelog before publishing it
+          # so the changelog is included in the release email
+          draft: true
+        env:
+          # (required)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-assets:
     strategy:
       fail-fast: false
       matrix:
         include:
+          # Targets that match the OS of the runner.
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-20.04
+          # Targets using cross-compilation (upload-rust-binary-action
+          # detects that they need cross).
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-20.04
           - target: aarch64-apple-darwin
             os: macos-latest
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@v1.4.5
+      - uses: actions/checkout@v4
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: difft
+          # (optional) On which platform to distribute the `.tar.gz` file.
+          tar: unix
+          # (optional) On which platform to distribute the `.zip` file.
+          zip: windows
+          # (optional) Target triple, default is host triple.
+          target: ${{ matrix.target }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          RUSTTARGET: ${{ matrix.target }}
