@@ -15,7 +15,7 @@ jobs:
           - target: aarch64-apple-darwin
             os: macos-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@baz-difftastic
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.5
         env:
