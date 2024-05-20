@@ -17,7 +17,7 @@ jobs:
       - name: Create a Release
         uses: elgohr/Github-Release-Action@v5
         with:
-          title: $GITHUB_REF_NAME
+          title: ${{ github.ref }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -28,8 +28,8 @@ jobs:
         include:
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-20.04
-          - target: aarch64-apple-darwin
-            os: macos-latest
+    #          - target: aarch64-apple-darwin
+    #            os: macos-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
