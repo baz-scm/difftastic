@@ -10,6 +10,7 @@ use crate::{
     parse::syntax::{self, MatchedPos, StringKind},
     summary::{DiffResult, FileContent, FileFormat},
 };
+use crate::display::side_by_side::lines_with_novel;
 
 #[derive(Debug, Serialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -125,6 +126,8 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                         Status::Deleted,
                     );
                 }
+                let (lhs_lines_with_novel, rhs_lines_with_novel) =
+                    lines_with_novel(&summary.lhs_positions, &summary.rhs_positions);
 
                 let lhs_lines = lhs_src.split('\n').collect::<Vec<&str>>();
                 let rhs_lines = rhs_src.split('\n').collect::<Vec<&str>>();
@@ -148,6 +151,13 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                     for (lhs_line_num, rhs_line_num) in aligned_lines {
                         let mut line =
                             Line::new(lhs_line_num.map(|l| l.0), rhs_line_num.map(|l| l.0));
+                        if !lhs_lines_with_novel.contains(&lhs_line_num.unwrap_or(LineNumber(0)))
+                            && !rhs_lines_with_novel
+                                .contains(&rhs_line_num.unwrap_or(LineNumber(0)))
+                        {
+                            lines.push(line);
+                            continue;
+                        }
 
                         if let Some(line_num) = lhs_line_num {
                             line.status = Status::Changed;
