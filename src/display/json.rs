@@ -150,6 +150,7 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                             Line::new(lhs_line_num.map(|l| l.0), rhs_line_num.map(|l| l.0));
 
                         if let Some(line_num) = lhs_line_num {
+                            line.status = Status::Changed;
                             add_changes_to_side(
                                 line.lhs.as_mut().unwrap(),
                                 *line_num,
@@ -158,6 +159,7 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                             );
                         }
                         if let Some(line_num) = rhs_line_num {
+                            line.status = Status::Changed;
                             add_changes_to_side(
                                 line.rhs.as_mut().unwrap(),
                                 *line_num,
@@ -232,6 +234,7 @@ struct Line<'l> {
     lhs: Option<Side<'l>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     rhs: Option<Side<'l>>,
+    status: Status,
 }
 
 impl<'l> Line<'l> {
@@ -239,6 +242,7 @@ impl<'l> Line<'l> {
         Line {
             lhs: lhs_number.map(Side::new),
             rhs: rhs_number.map(Side::new),
+            status: Status::Unchanged,
         }
     }
 }
