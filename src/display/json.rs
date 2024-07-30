@@ -129,7 +129,13 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                         match (from.as_str(), to.as_str()) {
                             (NON_EXISTENT_PERMISSIONS, _) => Status::Created,
                             (_, NON_EXISTENT_PERMISSIONS) => Status::Deleted,
-                            _ => Status::Changed,
+                            _ => {
+                                if from == to {
+                                    Status::Unchanged
+                                } else {
+                                    Status::Changed
+                                }
+                            }
                         }
                     } else {
                         Status::Unchanged
