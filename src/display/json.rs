@@ -3,8 +3,6 @@ use line_numbers::LineNumber;
 use regex::Regex;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
-use crate::display::side_by_side::lines_with_novel;
-use crate::parse::syntax::NON_EXISTENT_PERMISSIONS;
 use crate::{
     display::{
         context::{all_matched_lines_filled, opposite_positions},
@@ -14,6 +12,8 @@ use crate::{
     parse::syntax::{self, MatchedPos, StringKind},
     summary::{DiffResult, FileContent, FileFormat},
 };
+use crate::display::side_by_side::lines_with_novel;
+use crate::parse::syntax::NON_EXISTENT_PERMISSIONS;
 
 lazy_static! {
     static ref FILE_PERMS_RE: Regex =
@@ -125,7 +125,6 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                     let status = if File::extract_old_path(&summary.extra_info).is_some() {
                         Status::Renamed
                     } else if let Some((from, to)) = File::extract_status(&summary.extra_info) {
-                        println!("{from} -> {to}");
                         match (from.as_str(), to.as_str()) {
                             (NON_EXISTENT_PERMISSIONS, _) => Status::Created,
                             (_, NON_EXISTENT_PERMISSIONS) => Status::Deleted,
