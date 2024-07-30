@@ -212,7 +212,7 @@ fn git_style_arguments_new_file() {
         .arg("sample_files/simple_1.txt")
         .arg("abcdef1234")
         .arg("100644");
-    let predicate_fn = predicate::str::contains("File permissions changed").not();
+    let predicate_fn = predicate::str::contains("File permissions changed");
     cmd.assert().stdout(predicate_fn);
 }
 
