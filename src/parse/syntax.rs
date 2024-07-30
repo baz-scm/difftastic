@@ -19,6 +19,8 @@ use crate::{
     lines::is_all_whitespace,
 };
 
+pub const NON_EXISTENT_PERMISSIONS: &'static str = "0000000";
+
 /// A Debug implementation that does not recurse into the
 /// corresponding node mentioned for Unchanged. Otherwise we will
 /// infinitely loop on unchanged nodes, which both point to the other.

@@ -1,4 +1,6 @@
+use lazy_static::lazy_static;
 use line_numbers::LineNumber;
+use regex::Regex;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
 use crate::{
@@ -11,6 +13,12 @@ use crate::{
     summary::{DiffResult, FileContent, FileFormat},
 };
 use crate::display::side_by_side::lines_with_novel;
+use crate::parse::syntax::NON_EXISTENT_PERMISSIONS;
+
+lazy_static! {
+    static ref FILE_PERMS_RE: Regex =
+        Regex::new("^File permissions changed from (\\d+) to (\\d+).$").unwrap();
+}
 
 #[derive(Debug, Serialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -62,6 +70,23 @@ impl<'f> File<'f> {
         }
     }
 
+    fn extract_status(extra_info: &'f Option<String>) -> Option<(String, String)> {
+        let temp = extra_info.clone().unwrap_or_default();
+        let line = temp.lines().last();
+        match line {
+            None => None,
+            Some(s) => {
+                if let Some(captures) = crate::display::json::FILE_PERMS_RE.captures(s) {
+                    let from = captures[1].to_string();
+                    let to = captures[2].to_string();
+                    Some((from, to))
+                } else {
+                    None
+                }
+            }
+        }
+    }
+
     fn with_status(
         language: &'f FileFormat,
         path: &'f str,
@@ -99,6 +124,13 @@ impl<'f> From<&'f DiffResult> for File<'f> {
                 if hunks.is_empty() {
                     let status = if File::extract_old_path(&summary.extra_info).is_some() {
                         Status::Renamed
+                    } else if let Some((from, to)) = File::extract_status(&summary.extra_info) {
+                        println!("{from} -> {to}");
+                        match (from.as_str(), to.as_str()) {
+                            (NON_EXISTENT_PERMISSIONS, _) => Status::Created,
+                            (_, NON_EXISTENT_PERMISSIONS) => Status::Deleted,
+                            _ => Status::Changed,
+                        }
                     } else {
                         Status::Unchanged
                     };
