@@ -12,6 +12,7 @@ use const_format::formatcp;
 use crossterm::tty::IsTty;
 use itertools::Itertools;
 
+use crate::parse::syntax::NON_EXISTENT_PERMISSIONS;
 use crate::{
     display::style::BackgroundColor,
     exit_codes::EXIT_BAD_ARGUMENTS,
@@ -357,14 +358,12 @@ impl Display for FilePermissions {
     }
 }
 
-impl TryFrom<&OsStr> for FilePermissions {
-    type Error = ();
-
-    fn try_from(s: &OsStr) -> Result<Self, Self::Error> {
+impl From<&OsStr> for FilePermissions {
+    fn from(s: &OsStr) -> Self {
         if s == "." {
-            Err(())
+            Self(NON_EXISTENT_PERMISSIONS.to_owned())
         } else {
-            Ok(Self(s.to_string_lossy().into_owned()))
+            Self(s.to_string_lossy().into_owned())
         }
     }
 }
